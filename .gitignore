@@ -1,1 +1,3 @@
 .class
+**/Java/src/FFT/images/
+*.DS_Store
