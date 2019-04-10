@@ -16,7 +16,7 @@ class FFT {
         int width = picture.getWidth();
         int height = picture.getHeight();
 
-        pixels = grayScale(pixels, width, height);
+        pixels = grayScale(pixels, width, height); 
         saveImage(picture, pixels, width, height, appendFilepath(filePath, "_grayScale"));
     }
 
@@ -30,11 +30,12 @@ class FFT {
         frame.setVisible(true);
     }
 
+    // converts argb int format to a single value for the grayscale
     public static int[][] grayScale(int pixels[][], int width, int height) {
         for(int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 int p = pixels[i][j];
-                int a = 255, r = (p >> 16) & 0xff, g = (p >> 8) & 0xff, b = p & 0xff;
+                int r = (p >> 16) & 0xff, g = (p >> 8) & 0xff, b = p & 0xff;
 
                 // Normalize and gamma correct:
                 // gamma correction is a metric of adjusting making shadows either darker or lighter
@@ -48,18 +49,19 @@ class FFT {
 
                 // Gamma compand and rescale to byte range:
                 int grayLevel = (int) (255.0 * Math.pow(lum, 1.0 / 2.2));
-                int gray = (a << 24) + (grayLevel << 16) + (grayLevel << 8) + grayLevel;
-
-                pixels[i][j] = gray;
+                pixels[i][j] = grayLevel;
             }
         }        
         return pixels;
     }
 
+    // This implies saving of grayScale image since we use gray scale if FFT
     public static void saveImage(BufferedImage image, int pixels[][], int width, int height, String filePath) throws IOException {
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
-                image.setRGB(i, j, pixels[i][j]);
+                int p = pixels[i][j];
+                int pixel = (255 << 24) + (p << 16) + (p << 8) + p;
+                image.setRGB(i, j, pixel);
             }
         }
         ImageIO.write(image, "png", new File(filePath));
