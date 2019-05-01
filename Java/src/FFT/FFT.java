@@ -15,17 +15,30 @@ class FFT {
         
         int pixels[][] = singletonFft.grabPixels(picture);
         pixels = singletonFft.grayScale(pixels); 
-        // singletonFft.saveImage(picture, pixels, appendFilepath(filePath, "_grayScale"));
+        singletonFft.saveImage(picture, pixels, appendFilepath(filePath, "_grayScale"));
 
         Complex complexPixels[][] = singletonFft.turnComplex(pixels);
         Complex fft2[][] = singletonFft.fft2(complexPixels);
 
         Complex lowpass[][] = singletonFft.lowPass(fft2.length, 0.4);
-
         Complex ifft2[][] = singletonFft.dotProduct(fft2, lowpass);
+        Complex result[][] = singletonFft.ifft2(ifft2);
+        singletonFft.saveImage(picture, singletonFft.turnReal(result), appendFilepath(filePath, "_filter"));
 
         // System.out.println(complexPixels.length + "\t" + complexPixels[0].length);
         // Complex fft[] = singletonFft.fft(complexPixels[0]);
+    }
+
+    public int[][] turnReal(Complex[][] a) {
+        int height = a.length;
+        int width = a[0].length;
+        int b[][] = new int[height][width];
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                b[i][j] = Math.min(255, (int) Math.round(a[i][j].abs()));
+            }
+        }
+        return b;
     }
 
     public Complex[][] turnComplex(int[][] a) {
@@ -53,9 +66,17 @@ class FFT {
     }
 
     public Complex[][] ifft2(Complex[][] a) {
-        
-
-        return null;
+        int n = a.length;
+        int m = a[0].length;
+        Complex[][] A = new Complex[n][m];
+        for (int i = 0; i < n; i++) {
+            A[i] = ifft(a[i]);
+        }
+        A = transpose(A);
+        for (int i = 0; i < n; i++) {
+            A[i] = ifft(A[i]);
+        }
+        return A;
     }
 
     public Complex[][] fft2(Complex[][] a) {
