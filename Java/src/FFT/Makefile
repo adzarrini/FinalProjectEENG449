@@ -13,7 +13,8 @@ FILE =
 
 # classes for our java program
 CLASSES = \
-	FFT.java
+	FFT.java \
+	Complex.java
 
 # File containing the main method
 MAIN = FFT
