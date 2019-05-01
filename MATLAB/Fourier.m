@@ -1,5 +1,5 @@
 clear all; close all; clc;
-A = imread('Lenna.png');
+A = imread('bird.png');
 [rows, columns, colorBands] = size(A);
 % if colorBands > 1 
 %     B = A(:, :, 1);
@@ -46,12 +46,12 @@ figure(8);
 imshow(logFCP,[]);
 title('log transformed image');
 
-K0 = 0.9;
+K0 = 0.4;
 
 % Application of low pass filter in reconstruction
 %Image dimensions 
 [N,M] = size(G); %[height, width]
-%Sampling intervals 
+Sampling intervals 
 dx = 1; 
 dy = 1; 
 %Characteristic wavelengths 
@@ -67,10 +67,10 @@ figure(9);
 imshow(lpf,[]);
 title('Low pass filter');
 
-
 newImg = lpf.*F;
 % newImg = ifftshift(newImg);
 newImg = ifft2(newImg);
 figure(10);
 imshow(newImg,[]);
 title('reconstructed post filter');
+
