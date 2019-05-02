@@ -51,7 +51,7 @@ K0 = 0.4;
 % Application of low pass filter in reconstruction
 %Image dimensions 
 [N,M] = size(G); %[height, width]
-Sampling intervals 
+%Sampling intervals 
 dx = 1; 
 dy = 1; 
 %Characteristic wavelengths 

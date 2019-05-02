@@ -1,4 +1,6 @@
+import java.awt.Image;
 import java.awt.image.BufferedImage;
+import java.awt.Graphics2D;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Exception;
@@ -10,12 +12,16 @@ import javax.swing.ImageIcon;
 class FFT {
     public static void main(String[] args) throws IOException {
         FFT singletonFft = new FFT();
-        String filePath = "images/bird.png";
+        String filePath = "images/Lenna.png";
         BufferedImage picture = ImageIO.read(new File(filePath));
         
         int pixels[][] = singletonFft.grabPixels(picture);
         pixels = singletonFft.grayScale(pixels); 
+        int origHeight = pixels.length;
+        int origWidth = pixels[0].length;
         singletonFft.saveImage(picture, pixels, appendFilepath(filePath, "_grayScale"));
+        pixels = singletonFft.zeroPad(pixels);
+        picture = FFT.resize(picture, pixels.length, pixels.length);
 
         Complex complexPixels[][] = singletonFft.turnComplex(pixels);
         Complex fft2[][] = singletonFft.fft2(complexPixels);
@@ -23,11 +29,42 @@ class FFT {
         Complex lowpass[][] = singletonFft.lowPass(fft2.length, 0.4);
         Complex ifft2[][] = singletonFft.dotProduct(fft2, lowpass);
         Complex result[][] = singletonFft.ifft2(ifft2);
-        singletonFft.saveImage(picture, singletonFft.turnReal(result), appendFilepath(filePath, "_filter"));
+
+        int newPixels[][] = singletonFft.turnReal(result);
+        newPixels = singletonFft.removePad(newPixels, origWidth, origHeight);
+        picture = singletonFft.resize(picture, origWidth, origHeight);
+        singletonFft.saveImage(picture, newPixels, appendFilepath(filePath, "_filter"));
 
         // System.out.println(complexPixels.length + "\t" + complexPixels[0].length);
         // Complex fft[] = singletonFft.fft(complexPixels[0]);
     }
+
+    public int[][] zeroPad(int[][] a) {
+        int n = a.length;
+        int m = a[0].length;
+        int N = 1, M = 1;
+        while(N < n) N*=2;
+        while(M < m) M*=2;
+        int k = Math.max(N,M);
+        int A[][] = new int[k][k];
+        for(int i = 0; i < k; i++) {
+            for(int j = 0; j < k; j++) {
+                A[i][j] = 0;
+                if(i < n && j < m) A[i][j] = a[i][j];
+            }
+        }
+        return A;
+    }
+
+    public int[][] removePad(int[][] a, int width, int height) {
+        int A[][] = new int[height][width];
+        for(int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                A[i][j] = a[i][j];
+            }
+        }
+        return A;
+    } 
 
     public int[][] turnReal(Complex[][] a) {
         int height = a.length;
@@ -200,7 +237,7 @@ class FFT {
         }
     }
 
-    public void displayImage(String filePath) {
+    private void displayImage(String filePath) {
         JFrame frame = new JFrame();
         ImageIcon icon = new ImageIcon(filePath);
         JLabel label = new JLabel(icon);
@@ -224,6 +261,17 @@ class FFT {
         }        
         return pixels;
     }
+
+    public static BufferedImage resize(BufferedImage img, int newW, int newH) { 
+        Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
+        BufferedImage dimg = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
+
+        Graphics2D g2d = dimg.createGraphics();
+        g2d.drawImage(tmp, 0, 0, null);
+        g2d.dispose();
+
+        return dimg;
+    }  
 
     // This implies saving of grayScale image since we use gray scale if FFT
     public void saveImage(BufferedImage image, int pixels[][], String filePath) throws IOException {
