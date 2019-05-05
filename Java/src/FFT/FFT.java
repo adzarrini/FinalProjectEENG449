@@ -153,7 +153,7 @@ class FFT {
         Complex[] A = new Complex[n];
         for(int k = 0; k < n/2; k++) {
             double k_n = -2 * Math.PI * k / n; // value of exponent without i
-            Complex w_k = new Complex(Math.cos(k_n), Math.sin(k_n)); // Eulers formula and omega term
+            Complex w_k = new Complex(Math.cos(k_n), Math.sin(k_n)); // Eulers formula and sigma term
             A[k] = e[k].plus(w_k.times(o[k]));
             A[k + n/2] = e[k].minus(w_k.times(o[k]));
         }
