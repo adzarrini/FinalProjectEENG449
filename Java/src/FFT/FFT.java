@@ -133,15 +133,13 @@ class FFT {
 
         // split into even and odd
         Complex[] even = new Complex[n / 2];
+        Complex[] odd = new Complex[n / 2];
         for (int k = 0; k < n / 2; k++) {
             even[k] = a[2 * k];
-        }
-        Complex[] e = fft(even);
-
-        Complex[] odd = even; // same size as even
-        for (int k = 0; k < n / 2; k++) {
             odd[k] = a[2 * k + 1];
         }
+        
+        Complex[] e = fft(even);
         Complex[] o = fft(odd);
 
         Complex[] F = combine(e,o);
